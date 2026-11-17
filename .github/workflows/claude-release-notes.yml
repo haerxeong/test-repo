@@ -1,0 +1,35 @@
+name: Claude Release Notes
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  release-notes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write          # Release 생성
+      id-token: write          # Claude GitHub App 토큰 발급(OIDC)에 필요
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0       # 전체 커밋·태그 이력 필요
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            현재 태그: ${{ github.ref_name }}
+
+            1. 직전 태그를 찾고, 직전 태그부터 현재 태그까지의 커밋을 `git log`로 확인하세요.
+               (직전 태그가 없으면 첫 커밋부터 확인하세요.)
+            2. 사용자 관점에서 이해하기 쉬운 한국어 릴리즈 노트를 작성하세요.
+               - ✨ 새로운 기능 / 🐛 버그 수정 / ⚡ 개선 / 🔧 기타 로 분류
+               - 내부 리팩터링, 테스트, CI 변경은 '기타'에 짧게만 적기
+               - 각 항목에 관련 PR 번호를 붙이기
+            3. `gh release create`로 현재 태그의 Release를 Draft 상태(--draft)로 생성하세요.
+          claude_args: |
+            --max-turns 8
+            --allowedTools "Bash(git log:*),Bash(git tag:*),Bash(git describe:*),Bash(gh release create:*)"

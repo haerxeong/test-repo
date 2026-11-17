@@ -1,0 +1,32 @@
+language: "ko-KR"
+
+reviews:
+  profile: "chill"               # 사소한 지적 줄이기 (엄격하게는 "assertive")
+  high_level_summary: true
+  auto_review:
+    enabled: true
+    drafts: false                # Draft PR은 리뷰하지 않기
+
+  path_filters:
+    - "!**/build/**"
+    - "!**/*.lock"
+    - "!**/generated/**"
+
+  path_instructions:
+    - path: "src/main/java/**/controller/**"
+      instructions: |
+        - 요청 DTO에 @Valid 검증이 적용되어 있는지 확인하세요.
+        - Controller에 비즈니스 로직이 있으면 지적하세요.
+        - 인증이 필요한 API에 권한 체크가 있는지 확인하세요.
+    - path: "src/main/java/**/service/**"
+      instructions: |
+        - 트랜잭션 경계와 readOnly 설정을 확인하세요.
+        - 반복문 안에서 Repository를 호출하는 N+1 패턴을 지적하세요.
+        - 예외는 BusinessException 계열을 사용하는지 확인하세요.
+    - path: "src/main/resources/db/migration/**"
+      instructions: |
+        - 운영 데이터에 영향을 주는 변경(컬럼 삭제, 타입 변경)이 있으면
+          반드시 경고하고, 롤백 방법을 질문하세요.
+    - path: "src/test/**"
+      instructions: |
+        - 테스트 이름이 의도를 드러내는지, 실패·엣지 케이스가 포함되어 있는지 확인하세요.

@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: order
+  # 실습 편의를 위해 기본은 H2 인메모리 DB. 운영에서는 mysql 프로필 사용.
+  datasource:
+    url: jdbc:h2:mem:order;MODE=MySQL
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+
+---
+spring:
+  config:
+    activate:
+      on-profile: mysql
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
